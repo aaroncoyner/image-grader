@@ -58,7 +58,7 @@ ui <- fixedPage(
 )
 
 server <- function(input, output, session) {
-    data <- here("image-grader", "data", "data.csv") %>%
+    data <- here("data", "data.csv") %>%
         read_csv(col_names = FALSE) %>%
         mutate(show_vss = TRUE,
                user_plus_dx = NA,
@@ -89,7 +89,7 @@ server <- function(input, output, session) {
         # print(counter$value)
         if (nchar(input$name) < 5) {
             counter$value <- 0
-            out_list <- list("src" = here("image-grader", "error.jpg"),
+            out_list <- list("src" = "error.jpg",
                              "vss" = "",
                              "show_vss" = FALSE)
         } else {
@@ -98,12 +98,12 @@ server <- function(input, output, session) {
                 data[counter$value - 1, 5] <<- input$plusProb
             }
             if (counter$value != nrow(data) + 1) {
-                filename <- here("image-grader", "data", "images", data[counter$value, 1])
+                filename <- here("data", "images", data[counter$value, 1])
                 vss <- data[counter$value, 2]
                 show_vss <- data[counter$value, 3]
                 out_list <- list("src" = filename, "vss" = vss, "show_vss" = show_vss)
             } else {
-                out_list <- list("src" = here("image-grader", "recorded.jpg"),
+                out_list <- list("src" = "recorded.jpg",
                                  "vss" = "",
                                  "show_vss" = FALSE)
                 name <- to_snake_case(input$name)
