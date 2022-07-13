@@ -2,7 +2,8 @@
 rm(list = ls())
 library(shiny)
 library(here)
-library(tidyverse)
+library(dplyr)
+library(readr)
 library(snakecase)
 
 
@@ -107,7 +108,7 @@ server <- function(input, output, session) {
                                  "vss" = "",
                                  "show_vss" = FALSE)
                 name <- to_snake_case(input$name)
-                write_csv(data, paste("results-", name, ".csv", sep = ""))
+                write_csv(data, here("output", paste("results-", name, ".csv", sep = "")))
             }
         }
         return(list(out_list, data))
