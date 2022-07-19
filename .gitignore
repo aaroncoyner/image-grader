@@ -4,4 +4,6 @@
 .Ruserdata
 
 data/
+output/
+image-comparator.pem
 .DS_Store

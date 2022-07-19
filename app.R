@@ -32,8 +32,9 @@ ui <- fixedPage(
             #     min = 1,
             #     max = 9,
             #     value = 1,
-            #     step = 1
+            #     step = 0.5
             # ),
+            textOutput("imageNumber"),
             actionButton("prevImage", "Previous Image"),
             actionButton("nextImage", "Next Image")
         ),
@@ -43,7 +44,7 @@ ui <- fixedPage(
                 column(
                     12,
                     align="center",
-                    plotOutput("image", width = "640px", height = "480px")
+                    imageOutput("image", height = "640px")
                 )
             ),
             fixedRow(
@@ -59,11 +60,14 @@ ui <- fixedPage(
 )
 
 server <- function(input, output, session) {
+    set.seed(1337)
+    
     data <- here("data", "data.csv") %>%
-        read_csv(col_names = FALSE) %>%
+        read_csv(col_names = TRUE) %>%
         mutate(show_vss = TRUE,
                user_plus_dx = NA,
-               user_plus_prob = NA_real_)
+               user_plus_prob = NA_real_) %>%
+        sample_frac()
     
     data <- data %>%
         mutate(show_vss = FALSE) %>%
@@ -86,6 +90,8 @@ server <- function(input, output, session) {
             counter$value <- nrow(data) + 1
     })
     
+    output$imageNumber <- renderText({ as.character(paste("Image Number:", counter$value, "of", nrow(data))) })
+    
     show_image <- eventReactive(counter$value, {
         # print(counter$value)
         if (nchar(input$name) < 5) {
@@ -102,13 +108,17 @@ server <- function(input, output, session) {
                 filename <- here("data", "images", data[counter$value, 1])
                 vss <- data[counter$value, 2]
                 show_vss <- data[counter$value, 3]
-                out_list <- list("src" = filename, "vss" = vss, "show_vss" = show_vss)
+                out_list <- list("src" = filename,
+                                 "width" = "640px",
+                                 "height" = "480px",
+                                 "vss" = vss,
+                                 "show_vss" = show_vss)
             } else {
                 out_list <- list("src" = "recorded.jpg",
                                  "vss" = "",
                                  "show_vss" = FALSE)
                 name <- to_snake_case(input$name)
-                write_csv(data, here("output", paste("results-", name, ".csv", sep = "")))
+                write_csv(data, here("output", paste("results-", name, "-", Sys.time(), ".csv", sep = "")))
             }
         }
         return(list(out_list, data))
